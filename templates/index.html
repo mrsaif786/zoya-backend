@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Zoya AI</title>
+</head>
+
+<body style="background:black;color:white;text-align:center;margin-top:100px;">
+
+<h1>🤖 Zoya AI</h1>
+
+<input type="text" id="msg" placeholder="Type here">
+<button onclick="sendMsg()">Send</button>
+
+<div id="chat"></div>
+
+<script>
+async function sendMsg(){
+
+let msg = document.getElementById("msg").value;
+
+let response = await fetch("/chat",{
+method:"POST",
+headers:{
+"Content-Type":"application/json"
+},
+body:JSON.stringify({
+message:msg
+})
+});
+
+let data = await response.json();
+
+document.getElementById("chat").innerHTML +=
+"<p>You: "+msg+"</p>" +
+"<p>Zoya: "+data.reply+"</p>";
+}
+</script>
+
+</body>
+</html>

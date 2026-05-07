@@ -2,23 +2,84 @@
 <html>
 <head>
 <title>Zoya AI</title>
+
+<style>
+
+body{
+background:black;
+color:white;
+font-family:Arial;
+margin:0;
+padding:0;
+overflow:hidden;
+}
+
+.container{
+height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+flex-direction:column;
+}
+
+#chat{
+width:80%;
+max-width:600px;
+height:300px;
+overflow:auto;
+background:#111;
+padding:20px;
+border-radius:20px;
+margin-bottom:20px;
+}
+
+input{
+width:300px;
+padding:15px;
+border:none;
+border-radius:10px;
+font-size:18px;
+}
+
+button{
+padding:15px;
+border:none;
+border-radius:10px;
+font-size:18px;
+background:#ff00ff;
+color:white;
+cursor:pointer;
+}
+
+</style>
 </head>
 
-<body style="background:black;color:white;text-align:center;margin-top:100px;">
+<body>
+
+<div class="container">
 
 <h1>🤖 Zoya AI</h1>
 
-<input type="text" id="msg" placeholder="Type here">
-<button onclick="sendMsg()">Send</button>
-
 <div id="chat"></div>
 
+<div>
+<input type="text" id="msg" placeholder="Talk with Zoya AI">
+<button onclick="sendMsg()">Send</button>
+<button onclick="startVoice()">🎤</button>
+</div>
+
+</div>
+
 <script>
+
 async function sendMsg(){
 
-let msg = document.getElementById("msg").value;
+let msg=document.getElementById("msg").value;
 
-let response = await fetch("/chat",{
+document.getElementById("chat").innerHTML +=
+"<p><b>You:</b> "+msg+"</p>";
+
+let response=await fetch("/chat",{
 method:"POST",
 headers:{
 "Content-Type":"application/json"
@@ -28,12 +89,45 @@ message:msg
 })
 });
 
-let data = await response.json();
+let data=await response.json();
 
 document.getElementById("chat").innerHTML +=
-"<p>You: "+msg+"</p>" +
-"<p>Zoya: "+data.reply+"</p>";
+"<p><b>Zoya:</b> "+data.reply+"</p>";
+
+speak(data.reply);
 }
+
+function speak(text){
+
+let speech=
+new SpeechSynthesisUtterance(text);
+
+speech.lang="en-US";
+
+window.speechSynthesis.speak(speech);
+}
+
+function startVoice(){
+
+let recognition=
+new webkitSpeechRecognition();
+
+recognition.lang="en-US";
+
+recognition.onresult=function(event){
+
+let voiceText=
+event.results[0][0].transcript;
+
+document.getElementById("msg").value=
+voiceText;
+
+sendMsg();
+};
+
+recognition.start();
+}
+
 </script>
 
 </body>
